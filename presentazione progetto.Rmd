@@ -1,0 +1,479 @@
+---
+title: "Lebron James vs Michael Jordan"
+author: "di Samuele Antonello"
+output:
+  ioslides_presentation: null
+  slidy_presentation: default
+  widescreen: yes
+  beamer_presentation: default
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	cache = TRUE
+)
+library(dplyr)
+library(tidyverse)
+library(plotly)
+
+lebron <- read.csv("LebronGianni.csv") 
+jordan <- read.csv("MicheleGiordano.csv")
+MedieTiro <- read.csv("MedieTiro.csv")
+
+PER_L_J <-read.csv("PER_GOAT_MOD.csv")
+PER_PLAYERS <- read.csv("PERgiocatoriCOM.csv")
+
+RECORD_L <- read.csv("RECORD_LEBRON.csv")
+RECORD_J <- read.csv("RECORD_JORDAN.csv")
+
+carriere <- c("Carriera Jordan" , "Carriera Lebron")
+lebron$Year <- as.numeric(substr(lebron$Season, 1, 4))
+jordan$Year <- as.numeric(substr(jordan$Season, 1, 4))
+PER_PLAYERS$is_goat <- ifelse(PER_PLAYERS$giocatori == "Lebron James" | PER_PLAYERS$giocatori == "Michael Jordan", "yes", "no")
+
+#-------------------------------------------------------------------------------------------------
+#medie punti per le tutte le stagioni
+lebronPTS <- ggplot(data = lebron, aes(x=Year, y=PTS,group = 1))+
+  geom_line(size = 1.2, color = "grey")+
+  geom_smooth()+
+  geom_point(data = lebron, aes(color = Tm), size = 3)+
+  
+  labs(title = "Media punti Lebron james per ogni stagione",
+       x = "Stagione",
+       y = "Punti",
+       color = "Squadra"
+       )+
+  theme_classic()
+
+LPTS <- ggplotly(lebronPTS)
+LPTS
+
+jordanPTS <- ggplot(data = jordan, aes(x=Year, y=PTS, group = 1))+
+  geom_line(size = 1.2, color = "grey")+
+  geom_smooth()+
+  geom_point(data = jordan, aes(color = Tm), size = 3)+
+  labs(
+    title = "media punti Michael Jordan per ogni stagione",
+    x = "Stagione",
+    y = "Punti",
+    color = "Squadra"
+    )+
+  theme_classic()
+
+JPTS<-ggplotly(jordanPTS)
+JPTS
+#-------------------------------------------------------------------------------------------------------------
+#assist stagionali
+lebronAST <- ggplot(data = lebron, aes(x=Year, y=AST,group = 1))+
+  geom_line(size = 1.2, color = "grey")+
+  geom_point(data = lebron, aes(color = Tm),size=3)+
+  geom_smooth()+
+  labs(
+    title = "media assist Lebron James per ogni stagione",
+    x = "Stagione",
+    y = "Assist",
+    color = "Squadra"
+  )+
+  theme_classic()
+
+LAST <- ggplotly(lebronAST)
+LAST
+
+jordanAST <- ggplot(data = jordan, aes(x=Year, y=AST, color = Tm, group = 1))+
+  geom_line(size = 1.2, color = "grey")+
+  geom_point(data = jordan, size=3)+
+  geom_smooth()+
+  labs(
+    title = "media assist Michael Jordan per ogni stagione",
+    x = "Stagione",
+    y = "Assist",
+    color = "Squadra"
+  )+
+  theme_classic()
+
+JAST <- ggplotly(jordanAST)
+JAST
+
+#-----------------------------------------------------------------------------------------------------------
+#barplot tiri tentati lebron
+
+
+tiriTotali_L <- ggplot()+
+  geom_col(data = lebron, aes(x = Year, y = FGA), fill = "firebrick4")+
+  geom_col(data = lebron, aes(x = Year, y = TPA), fill = "darkgoldenrod1")+
+  labs(title = "Distribuzione tiri di Lebron",
+       x = "Stagioni",
+       y = "tiri tentati",
+      )+
+  theme_classic()
+
+tiriTotali_L
+
+TTL <- ggplotly(tiriTotali_L)
+TTL
+#------------------------------------------------------------------------------------------------
+#barplot tiri tentati jordan
+tiriTotali_J <- ggplot()+
+  geom_col(data = jordan, aes(x = Year, y = FGA), fill = "red")+
+  geom_col(data = jordan, aes(x = Year, y = TPA), fill = "black")+
+  labs(title = "Distribuzione tiri di Jordan",
+       x = "Stagioni",
+       y = "tiri tentati",
+       )+
+  theme_classic()
+tiriTotali_J
+
+TTJ <- ggplotly(tiriTotali_J)
+TTJ
+#------------------------------------------------------------------------------------
+#confronto medie
+tiriTotali <- ggplot()+
+  geom_col(data = MedieTiro, aes(x = carriere, y = FGA), fill = "orange")+
+  geom_col(data = MedieTiro, aes(x = carriere, y = TPA), fill = "darkorange2")+
+  labs(title = "Distribuzione tiri in carriera",
+       x = "Giocatori",
+       y = "tiri tentati"
+       )+
+  theme_classic()
+
+tiriTotali
+
+TT<-ggplotly(tiriTotali)
+TT
+#----------------------------------------------------------------------------------------
+#P.E.R jordan e lebron
+PER_LEBRON <- ggplot()+
+  geom_col(data = PER_L_J, aes(x = SeasonL, y = PERL, fill = Team_L))+
+  labs(
+    x = "Stagione",
+    y = "P.E.R",
+    title ="Player Efficiency Rating Lebron:",
+    fill = "Squadra"
+  )+
+theme_bw()
+ 
+
+PRL<-ggplotly(PER_LEBRON)
+PRL
+
+PER_JORDAN <- ggplot()+
+  geom_col(data = PER_L_J, aes(x = SeasonJ, y = PERJ, fill = Team_J))+
+  labs( x = "Stagione",
+        y = "P.E.R",
+        title ="Player Efficiency Rating Jordan:",
+        fill = "Squadra")+
+theme_bw()
+
+
+PRJ <- ggplotly(PER_JORDAN)
+PRJ
+
+#P.E.R tanti giocatori #da perfezionare
+PER_PLAYERS$is_goat <- ifelse(PER_PLAYERS$giocatori == "Lebron James" | PER_PLAYERS$giocatori == "Michael Jordan", "yes", "no")
+PER_01 <- ggplot(data = PER_PLAYERS, aes(x = partite, y = PER,  label = giocatori, fill = is_goat ))+
+  geom_point( color = "black",
+              shape = 21,
+              stroke = 0.5,
+              alpha = 0.8,
+              size = 8)+
+  scale_size(range = c(8, 20), name = "Punti totali:")+
+  labs(
+    title = "Player Efficiency Rating",
+    x = "Partite disputate",
+    y = "PER"
+  )+
+  theme_classic()
+
+PER_CONFRONTO01 <-ggplotly(PER_01)
+PER_CONFRONTO01
+
+PER_02 <- ggplot(data = PER_PLAYERS, aes(x = partite, y = totPTS, size = PER, label = giocatori , fill = is_goat ))+
+  geom_point(
+              color = "black",
+              shape = 21,
+              stroke = 0.5,
+              alpha = 0.8)+
+  scale_size(range = c(5,20),name = "P.E.R")+
+  labs(
+    x= "Partite disputate",
+    y= "Punti totali",
+    size= "PER"
+  )+
+  theme_classic()
+
+PER_CONFRONTO02 <- ggplotly(PER_02)
+PER_CONFRONTO02
+                  
+#---------------------------------------------------------------------------------------
+#record squadra lebron
+TeamLebron <- ggplot(data = RECORD_L, aes(x = Season, y = W,  group = 1))+
+  geom_line(color = "grey",size = 1.2)+
+  geom_point(data = RECORD_L,aes(color = team), size = 3)+
+  geom_smooth()+
+  labs(
+    title = "Record squadre di Lebron (82 partite stagionali",
+    subtitle = "(stagioni 11-12, 19-20, 20-21 hanno avuto meno partite complessive)",
+    x = "Stagione",
+    y = "Partite vinte"
+  )+
+  theme_classic()
+
+TL <- ggplotly(TeamLebron)
+TL
+
+#record squadre jordan
+TeamJordan <- ggplot(data = RECORD_J, aes(x = Season, y = W, group = 1))+
+  geom_line(color = "grey", size = 1.2)+
+  geom_point(data = RECORD_J,aes(color = team),size = 3)+
+  geom_smooth()+
+  labs(
+    title = "Record squadre di jordan (82 partite stagionali)",
+    x = "Stagione",
+    y = "Partite vinte"
+  )+
+  theme_classic()
+
+ TJ <- ggplotly(TeamJordan)
+ TJ
+
+#confronto diretto
+ 
+
+Team <- ggplot()+
+  geom_point(data = RECORD_L, aes(x = L, y = W, color = player, size = percentage, label = Season))+
+  geom_point(data = RECORD_J, aes(x = L, y = W, color = player, size = percentage, label = Season))+
+  labs(
+    x = "Sconfitte",
+    y = "Vittorie"
+  )+
+  theme_classic()
+  
+Team
+
+TEAMS <- ggplotly(Team)
+TEAMS
+
+
+
+#grafici fatti:
+LPTS #medie punti stagionali di lebron
+JPTS #medie punti stagionali di jordan
+LAST #medie assist stagionali di lebron
+JAST #medie assist stagionali di jordan
+TTL  #tiri tentatati stagionali di lebron
+TTJ  #tiri tentatati stagionali di jordan
+TT   #confronto tiri tentati media carriere jordan e lebron
+PRL  #PER stagionale lebron
+PRJ  #PER stagionale jordan
+PER_CONFRONTO01  #confronto PER lebron e jordan con altri giocatori 1
+PER_CONFRONTO02  #confronto PER lebron e jordan con altri giocatori 2
+TL #analisi record squadre di lebron
+TJ #analisi record squadre di jordan
+TEAMS #confronto record squadre di lebron e jordan
+
+```
+
+```{css, ECHO=FALSE }
+blockquote {
+  background: #ffffff;
+  border-left: 5px solid #ccc;
+  margin: 1.5em 10px;
+  padding: 0.5em 1.5em;
+}
+
+/* scrolling */
+slides > slide {
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+}
+
+/* hide page numbers */
+slides > slide:not(.nobackground):after {
+  content: '';
+}
+
+```
+
+## Perchè questo confronto?
+
+Nella cultura sportiva del basket la discussione su chi sia il __GOAT (Greatest Of All Time)__ è sempre stata accesa, specialmente in questi anni, su chi sia migliore tra **Lebron James** e **Michael Jordan** probabilmente non è possibile trovare una risposta, quindi dato che il basket è uno sport molto statistico, è meglio far parlare i numeri e trovare qualche spunto di riflessione:
+
+```{r echo=FALSE, out.width="50%"}
+knitr::include_graphics("lbj.jpg", error = FALSE)
+knitr::include_graphics("mj.jpeg", error = FALSE)
+```
+
+
+
+## Chi è LeBron James?
+  **Titoli vinti:**
+  
+- Miami Heat 2011 e 2013
+- Cleveland Cavaliers 2016
+- Los Angeles Lakers 2020
+
+ **Riconoscimenti:**
+ 
+- 4 MVP
+- 4 finals MVP
+- Leader per punti segnati all-time (38652)
+- 14 partecipazioni ai playoff
+- 10 apparizioni alle NBA Finals
+
+## Chi è Michael Jordan?
+
+**Titoli vinti:**
+  
+- Chicago Bulls: 1991, 1992, 1993 (1° three-peat)
+- Chicago Bulls: 1996, 1997, 1998 (2° three-peat)
+
+**Riconoscimenti:**
+  
+- 5 MVP
+- 6 finals MVP
+- Defensive Player of the year (1988)
+- 13 partecipazioni ai playoff
+- 6 apparizioni alle NBA Finals
+
+**Ritiri:**
+  
+Michael Jordan si è ritirato dal basket 3 volte: la prima nel 1993 per la scomparsa del padre, nel 1999 dopo aver vinto il secondo three-peat e infine nel 2003 definitivamente.
+
+## Che statistiche guarderemo?
+
+Le statistiche che guarderemo sono le seguenti:
+
+- Punti
+- Assist
+- Tiri tentati in generale
+- Tiri tentati da 3 punti
+- P.E.R del giocatore (Player Efficiency Rating)
+- Record delle squadre
+
+Il P.E.R è una statistica che è stata ideata per descrivere la prestazione a tutto tondo di un giocatore durante una stagione.
+
+
+## Dataset utilizzati:
+
+Ho preso le informazioni sulle statistiche pesonali dei giocatori dal sito [basketball reference](https://www.basketball-reference.com), mentre per quanto riguarda altre informazioni piu' particolari ho creato vari dataset personalmente prendendo i dati dal sito [stat-muse nba](https://www.statmuse.com/nba).
+Esempio dataset statistiche di Lebron James:
+```{r}
+lebron
+```
+
+
+## Media punti Lebron James:
+```{r echo=FALSE}
+LPTS
+```
+
+## Media punti Michael Jordan:
+```{r echo=FALSE}
+JPTS
+```
+
+## Considerazioni 1:
+- Michael Jordan era nel complesso uno "scorer" migliore di Lebron.
+- Lebron James con il passare degli anni sta incrementando l'apporto offensivo.
+- Lebron è piu costante con il passare del tempo a discapito di qualche punto in meno.
+
+## Media assist Lebron James:
+```{r echo=FALSE}
+LAST
+```
+
+## Media assist Michael Jordan:
+```{r echo=FALSE}
+JAST
+```
+
+## Considerazioni 2:
+
+- Lebron James è sempre stato un ottimo passatore, l'andamento è altalenante ma nel complesso sempre di ottimo livello, in particolare negli ultimi anni di carriera.
+- Michael Jordan ha dispensato meno passaggi chiave in quanto era lui il principale terminale offensivo della squadra, questo trend si accentua con il passare delle stagioni.
+
+## Tiri tentati Lebron James:
+```{r echo=FALSE}
+TTL
+```
+
+## Tiri tentati Michael Jordan:
+```{r echo=FALSE}
+TTJ
+```
+
+## Confronto diretto tra i due (medie carriera):
+```{r echo=FALSE}
+TT
+```
+
+
+## Considerazioni 3:
+
+- Come possiamo intuire dal precedente grafico sui punti segnati, Michael Jordan non avrebbe potuto segnare tutti quei punti senza tirare molto in campo.
+- Notiamo che che i tiri da 3 punti presi da Jordan sono nettamente inferiori dei tiri dalla distanza di Lebron, questo per via dell'evoluzione dello stile di gioco al passare degli anni.
+- Nelle ultime stagioni Lebron sta aumentando considerevolmente i tiri dalla distanza magari anche per via del degrado fisico.
+
+## P.E.R di Lebron James:
+```{r echo=FALSE}
+PRL
+```
+
+
+## P.E.R di Michael Jordan:
+```{r echo=FALSE}
+PRJ
+```
+
+## Confronto con altri giocatori (in base alle partite giocate):
+```{r echo=FALSE}
+PER_CONFRONTO01
+```
+
+
+## Confronto con altri giocatori (in base ai punti segnati):
+```{r echo=FALSE}
+PER_CONFRONTO02
+```
+
+## Considerazioni 4:
+
+- Le medie del PER di Lebron e Jordan differiscono solo di 0.2 punti, dobbiamo però anche tenere conto che il giocatore dei Bulls ha giocato 349 partite in meno, ciò indica una maggiore costanza nelle prestazioni del suo concorrente.
+- Al momento Jordan detiene il record per il PER medio in carriera piu' alto della storia.
+
+
+## Record delle squadre di Lebron James:
+```{r echo=FALSE}
+TL
+```
+
+## Record delle squadre di Michael Jordan:
+```{r echo=FALSE}
+TJ
+```
+
+## Confronto dei record delle squadre:
+```{r echo=FALSE}
+TEAMS
+```
+
+
+## Considerazioni 5:
+
+- Entrambi i giocatori hanno un andamento di squadra abbastanza simile, l'andamento dominante di Jordan che ha avuto nella parentesi Bulls viene pesantemente influenzato dalle due stagioni sotto la media a Washington.
+- Complessimente  Jordan ha una percentuale di vittoria del **65%** mentre Lebron del **61%**.
+- Michael Jordan nella stagione 1995/96 ha effettuato una stagione con 72 vittorie e 10 sconfitte, record durato fino alla stagione 2015/16 dove i Golden State Warriors hanno fatto 73 vittorie e 9 sconfitte, proprio questa squadra ha perso la finale contro i Cleveland Cavaliers di Lebron in una delle Finals piu' belle della storia.
+
+
+
+
+
+
+
+
+
+## Conclusione
+
+Grazie mille per l'attenzione!
